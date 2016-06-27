@@ -51,7 +51,8 @@ namespace PdfSplitterLib
             //Zero out counts
             qrCount = 0;
             contentCount = 0;
-            ripCount = 0;  
+            ripCount = 0;
+            totalPages = 0;
         }
 
         //Methods
@@ -84,6 +85,7 @@ namespace PdfSplitterLib
                     totalPages = Rasterizer.PageCount; //Total pages
 
                     //Loop from page 1 to page n-1 (No need to read the last page).
+                    //Note: 1 page PDF will automatically be skipped.
                     for (int i = 1; i < Rasterizer.PageCount; i++)
                     {
                         pageImg = (Bitmap)Rasterizer.GetPage(72, 72, i);
@@ -101,9 +103,16 @@ namespace PdfSplitterLib
 
                             updatePreviousChunk(i - 1); //Update the previous chunks last page.
                         }
+                        else if(i == 1 && isBlankOrNullStr(docType))
+                        {
+                            //Exit loop if the first page is not a QR code seperator page
+                            Console.WriteLine("SKIPPED: {0}{1}", SrcPdf.Name, Environment.NewLine); //TEST OUTPUT
+                            break;
+                        }
                         else
                         {
-                            contentCount++; //Content page count.
+                            //Else count as a content page
+                            contentCount++;
                         }
                     }
                     //END LOOP
@@ -234,6 +243,15 @@ namespace PdfSplitterLib
                 return false;
             else
                 return true;
+        }
+
+        /// <summary>
+        /// Verify that one or more PDF chunks exist.
+        /// </summary>
+        /// <returns>True if at least one PDF chunk exitst.</returns>
+        public bool HasChuncks()
+        {
+            return Chunks.Count > 0;
         }
 
         //Test Methods
