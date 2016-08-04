@@ -68,6 +68,7 @@ namespace PdfSplitterLib
             GhostscriptRasterizer Rasterizer = null;    //Rasterizer
             Bitmap pageImg; //Image of one PDF page.
             string docType; //Value of document-type property in QR code json.
+            int qrCodeGap = 0;
 
             //Only process PDFs
             if (SrcIsPdf())
@@ -96,6 +97,18 @@ namespace PdfSplitterLib
                         {
                             qrCount++; //Increment found qr code count.
 
+                            //Throw exception if more than one QR code is found 
+                            //and QR Gap is less than 1 (Double Feed)
+                            if (qrCount > 1 && qrCodeGap < 1)
+                            {
+                                throw new ApplicationException("File: " + SrcPdf.Name + " has two consecutive QR code pages. "
+                                                                + "QR code double feed will result with an empty document.");
+                            }
+                            else
+                            {
+                                qrCodeGap = 0;  //Reset Gap//
+                            }
+
                             //Console.WriteLine("DOC TYPE: {0}{1}", docType, Environment.NewLine); //TEST OUTPUT
 
                             //Create chunk with src page # for first page (The one after QR page) and name (srcFileName_docType_qr#).
@@ -113,6 +126,9 @@ namespace PdfSplitterLib
                         {
                             //Else count as a content page
                             contentCount++;
+
+                            //Increment QR gap//
+                            qrCodeGap++;
                         }
                     }
                     //END LOOP

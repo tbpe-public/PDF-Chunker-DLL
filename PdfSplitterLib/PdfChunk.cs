@@ -30,6 +30,10 @@ namespace PdfSplitterLib
         //Methods
         //***************************************************************************
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return chunkName + " : PAGES " + firstPage + " - " + lastPage;
